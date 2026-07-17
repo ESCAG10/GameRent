@@ -1,7 +1,4 @@
-import {
-    Text,
-    TouchableOpacity,
-} from "react-native";
+import { Text, TouchableOpacity, } from "react-native";
 
 interface CustomButtonProps {
     title: string;
@@ -17,9 +14,10 @@ export default function CustomButton({
             onPress={onPress}
             style={{
                 backgroundColor: "#2563EB",
-                padding: 12,
-                borderRadius: 10,
+                padding: 10,
+                borderRadius: 5,
                 marginVertical: 10,
+                width: 200,
             }}
         >
             <Text

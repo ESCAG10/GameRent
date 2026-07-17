@@ -8,8 +8,13 @@ export default function SearchBar() {
                 borderWidth: 1,
                 padding: 10,
                 borderRadius: 10,
-                marginVertical: 15,
+                marginVertical: 10,
+                width: 200,
+                alignSelf: "center"
             }}
         />
+
+
+
     );
 }

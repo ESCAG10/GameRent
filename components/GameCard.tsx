@@ -18,6 +18,7 @@ export default function GameCard({
                 padding: 15,
                 marginVertical: 10,
                 borderRadius: 10,
+                width: 200,
             }}
         >
             <Text>{title}</Text>

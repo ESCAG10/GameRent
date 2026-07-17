@@ -4,7 +4,42 @@ import { Stack } from "expo-router";
 export default function Layout() {
   return (
     <Stack>
-      {/* pantallas */}
+
+      <Stack.Screen
+        name="index"
+        options={{
+          title: "Login",
+        }}
+      />
+
+      <Stack.Screen
+        name="home"
+        options={{
+          title: "Inicio",
+        }}
+      />
+
+      <Stack.Screen
+        name="game-detail"
+        options={{
+          title: "Detalle del Juego",
+        }}
+      />
+
+      <Stack.Screen
+        name="rentals"
+        options={{
+          title: "Mis Rentas",
+        }}
+      />
+
+      <Stack.Screen
+        name="profile"
+        options={{
+          title: "Perfil",
+        }}
+      />
+
     </Stack>
   );
 }
