@@ -4,50 +4,7 @@ import { Button, FlatList, StyleSheet, Text, TextInput, View } from "react-nativ
 
 export default function HomeScreen() {
 
-    const videojuegosDemo = [
-        {
-            id: "1",
-            titulo: "FIFA 26",
-            plataforma: "PS5",
-            descripcion: "El último juego de fútbol...",
-            precioRenta: 50,
-            stock: 8,
-            activo: true,
-            categoriaID: "Deportes",
-        },
-
-        {
-            id: "2",
-            titulo: "Halo Infinite",
-            plataforma: "Xbox Series X",
-            descripcion: "Shooter futurista...",
-            precioRenta: 45,
-            stock: 6,
-            activo: true,
-            categoriaID: "Accion",
-        },
-
-        {
-            id: "3",
-            titulo: "Minecraft",
-            plataforma: "PC",
-            descripcion: "Juego de construccion...",
-            precioRenta: 30,
-            stock: 12,
-            activo: true,
-            categoriaId: "Sandbox",
-        },
-
-        {
-            id: "4",
-            titulo: "Resident Evil 4",
-            plataforma: "PS5",
-            descripcion: "Juego de terror...",
-            precioRenta: 55,
-            stock: 4,
-            activo: true,
-            categoriaId: "Terror",
-        },
+    const videojuegoDemo = [
 
         {
             id: "5",
@@ -61,22 +18,32 @@ export default function HomeScreen() {
         },
     ];
 
-    const [videojuegos, setVideojuegos] = useState(videojuegosDemo);
+    const [videojuego, setVideojuego] = useState<any[]>([]);
 
     const [busqueda, setBusqueda] = useState("");
 
-    const videojuegosFiltrados = videojuegos
+    const videojuegoFiltrado = videojuego
         .filter((videojuego) => videojuego.titulo
             .toLowerCase().includes(busqueda.toLowerCase()));
 
 
     useEffect(() => {
-        fetch("http://127.0.0.1:3000/videojuegos")
-            .then(response => response.json())
-            .then(data => {
-                setVideojuegos(data || []);
-            })
-            .catch(error => console.log(error));
+
+        const cargarVideojuego = async () => {
+
+            try {
+                const response = await fetch("http://127.0.0.1:3000/videojuego");
+                const data = await response.json();
+                setVideojuego(data ?? []);
+
+            }
+
+
+            catch (error) {
+                console.error(error)
+            }
+        }; cargarVideojuego();
+
     }, []);
 
     return (
@@ -127,7 +94,7 @@ export default function HomeScreen() {
 
             <FlatList
 
-                data={videojuegosFiltrados}
+                data={videojuegoFiltrado}
 
                 keyExtractor={(item) => item.id}
 
@@ -165,7 +132,7 @@ export default function HomeScreen() {
 
                             <Button
                                 title="Ver Detalle"
-                                onPress={() => router.push(`/game-detail?id=${item.id}`)}
+                                onPress={() => router.push({ pathname: "/game-detail", params: { id: item.id } })}
                             />
 
 
