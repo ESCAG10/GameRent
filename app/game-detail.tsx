@@ -15,7 +15,7 @@ export default function GameDetailScreen() {
         const cargarVideojuego = async () => {
             try {
 
-                const response = await fetch(`http://127.0.0.1:3000/videojuegos/${id}`);
+                const response = await fetch(`http://127.0.0.1:3000/videojuego/${id}`);
 
                 const data = await response.json();
 
