@@ -1,14 +1,12 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { Button, Text, View } from "react-native";
-
-
+import { Alert, Button, Text, View } from "react-native";
 
 export default function GameDetailScreen() {
+
     const { id } = useLocalSearchParams();
-    console.log("ID recibido:", id);
-    //const juego = videojuegosDemo.find(v => v.id === id);
+
     const [videojuego, setVideojuego] = useState<any>(null);
 
 
@@ -16,11 +14,13 @@ export default function GameDetailScreen() {
 
         const cargarVideojuego = async () => {
             try {
-
-                const response = await fetch(`http://127.0.0.1:3000/videojuego/${id}`);
+                const response = await fetch(
+                    `http://127.0.0.1:3000/videojuego/${id}`
+                );
 
                 const data = await response.json();
-                console.log("DATA:", data);
+
+                console.log("Videojuego:", data);
 
                 setVideojuego(data);
 
@@ -40,50 +40,83 @@ export default function GameDetailScreen() {
         try {
 
             const usuarioId = await AsyncStorage.getItem("usuarioId");
+
+            if (!usuarioId) {
+                Alert.alert("Error", "No hay un usuario logueado");
+                return;
+            }
+
             const hoy = new Date();
             const entrega = new Date();
-
             entrega.setDate(hoy.getDate() + 7);
-            const response = await fetch(`http://127.0.0.1:3000/renta`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
 
-                    body: JSON.stringify({
-                        usuarioId: usuarioId,
-                        titulo: videojuego.titulo,
-                        videojuegoId: videojuego.id,
-                        fechaRenta: hoy.toISOString().substring(0, 10),
-                        fechaEntrega: entrega.toISOString().substring(0, 10),
-                        estado: "Activo"
-                    })
-                }
-            );
+            const renta = {
+                usuarioId: usuarioId,
+                videojuegoId: videojuego.id,
+                categoriaId: videojuego.categoriaId,
+                fechaRenta: hoy.toISOString().substring(0, 10),
+                periodoRenta: 7,
+                fechaEntrega: entrega.toISOString().substring(0, 10),
+                estado: "Activo",
+                activo: true,
+            };
+
+            console.log("Enviando renta:");
+            console.log(renta);
+
+            const response = await fetch("http://127.0.0.1:3000/renta", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(renta),
+            });
+
             const data = await response.json();
-            console.log("DATA1:", data);
+
+            console.log("Respuesta del servidor:");
+            console.log(data);
+
+            if (!response.ok) {
+                Alert.alert("Error", data.error || "No se pudo registrar la renta");
+                return;
+            }
+
+            Alert.alert("Éxito", "Renta registrada correctamente");
         } catch (error) {
 
             console.log(error);
+            Alert.alert("Error", "Ocurrió un error");
         }
-
-    }
+    };
 
     if (!videojuego) {
-        return <Text>No encontrado</Text>;
+        return (
+            <View>
+                <Text>Cargando...</Text>
+            </View>
+        );
     }
-    console.log("GAME:", videojuego);
-    return (
-        <View>
 
-            <Text style={{ fontSize: 20 }}>{videojuego?.titulo}</Text>
+    return (
+        <View style={{ flex: 1, padding: 20 }}>
+            <Text style={{ fontSize: 22, fontWeight: "bold" }}>
+                {videojuego.titulo}
+            </Text>
+
+
             <Text>Plataforma: {videojuego.plataforma}</Text>
             <Text>Descripción: {videojuego.descripcion}</Text>
             <Text>Precio: ${videojuego.precioRenta}</Text>
             <Text>Stock: {videojuego.stock}</Text>
-            <Text>CategoriaID: {videojuego.categoriaId}</Text>
-            <Button title="Rentar" onPress={registrarRenta} />
+            <Text>Categoría: {videojuego.categoriaId}</Text>
+
+            <View style={{ marginTop: 20 }}>
+                <Button
+                    title="Rentar videojuego"
+                    onPress={registrarRenta}
+                />
+            </View>
         </View>
     );
 }
