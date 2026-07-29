@@ -1,71 +1,45 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState } from "react";
-import {
-    Alert,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
-} from "react-native";
+import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View, } from "react-native";
 
-export default function RegisterScreen() {
-    const [nombre, setNombre] = useState("");
+export default function LoginScreen() {
     const [correo, setCorreo] = useState("");
     const [password, setPassword] = useState("");
-    const [mensaje, setMensaje] = useState("");
 
-    const IniciarSesion = async () => {
-        const usuario = {
-            nombre,
-            correo,
-            password,
-            rol: "cliente",
-            activo: true,
-        };
-
+    const iniciarSesion = async () => {
         try {
             const response = await fetch("http://127.0.0.1:3000/login", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(usuario),
+                body: JSON.stringify({
+                    correo,
+                    password,
+                }),
             });
 
             const data = await response.json();
 
-            console.log("Respuesta del login:", data);
+            console.log(data);
 
             if (!response.ok) {
-                Alert.alert("Error", data.error || "Error al iniciar sesión");
+                Alert.alert("Error", data.error);
                 return;
             }
 
-            // Guarda el ID correcto
             await AsyncStorage.setItem("usuarioId", data.id);
 
-            // Verificar que se guardó
-            const guardado = await AsyncStorage.getItem("usuarioId");
-            console.log("Usuario ID guardado:", guardado);
-
-            setMensaje("Inicio de sesión exitoso");
-        } catch (error) {
-            console.log(error);
-            setMensaje("Error al iniciar sesión");
+            Alert.alert("Éxito", "Sesión iniciada");
+        } catch (err) {
+            console.log(err);
+            Alert.alert("Error", "No se pudo iniciar sesión");
         }
     };
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Registro</Text>
-
-            <TextInput
-                placeholder="Nombre"
-                value={nombre}
-                onChangeText={setNombre}
-                style={styles.input}
-            />
+            <Text style={styles.title}>Iniciar Sesión</Text>
 
             <TextInput
                 placeholder="Correo"
@@ -82,11 +56,9 @@ export default function RegisterScreen() {
                 style={styles.input}
             />
 
-            <TouchableOpacity style={styles.button} onPress={IniciarSesion}>
-                <Text style={styles.buttonText}>Registrarse</Text>
+            <TouchableOpacity style={styles.button} onPress={iniciarSesion}>
+                <Text style={styles.buttonText}>Entrar</Text>
             </TouchableOpacity>
-
-            {mensaje ? <Text>{mensaje}</Text> : null}
         </View>
     );
 }
