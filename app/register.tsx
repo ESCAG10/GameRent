@@ -28,7 +28,12 @@ export default function LoginScreen() {
                 return;
             }
 
-            await AsyncStorage.setItem("usuarioId", data.id);
+            await AsyncStorage.setItem("usuarioId", data.usuario.id);
+
+            const guardarUsuarioId = async (id: string) => {
+                await AsyncStorage.setItem("usuarioId", id);
+            };
+
 
             Alert.alert("Éxito", "Sesión iniciada");
         } catch (err) {
