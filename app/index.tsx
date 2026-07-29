@@ -71,8 +71,20 @@ export default function LoginScreen() {
             <Text style={styles.buttonText}>
               Ingresar
             </Text>
+          </TouchableOpacity>
+
+          {/* Botón para ir al registro */}
+          <TouchableOpacity
+            style={[styles.button, { backgroundColor: "#10B981" }]} // verde para diferenciar
+            onPress={() => router.push("../register")}
+          >
+
+            <Text style={styles.buttonText}>
+              Crear cuenta
+            </Text>
 
           </TouchableOpacity>
+
 
           {/* Pie */}
 
