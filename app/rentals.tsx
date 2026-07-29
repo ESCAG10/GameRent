@@ -1,4 +1,4 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
 import { Alert, FlatList, Text, View } from "react-native";
 
@@ -12,88 +12,84 @@ interface RentalItem {
     activo: boolean;
 }
 
-interface RentalsScreenProps {
-    rentas: RentalItem[];
-}
-
-export default function RentalsScreen({ rentas }: RentalsScreenProps) {
-
-
-    const [renta, setRenta] = useState<any[]>([]);
+export default function RentalsScreen() {
+    const [rentas, setRentas] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        const cargarRentas = async () => {
+            try {
+                const usuarioId = await AsyncStorage.getItem("usuarioId");
+                console.log("Usuario ID:", usuarioId);
 
+                if (!usuarioId) {
+                    Alert.alert("Error", "No hay un usuario logueado");
+                    setLoading(false);
+                    return;
+                }
 
-        const registrarRenta = async () => {
+                const response = await fetch(
+                    `http://localhost:3000/renta/usuario/${usuarioId}`
+                );
 
-            const usuarioId = await AsyncStorage.getItem("usuarioId");
+                const texto = await response.text();
+                console.log("Respuesta:", texto);
 
-            if (!usuarioId) {
-                console.log("No hay usuario logueado");
-                return;
+                if (!response.ok) {
+                    Alert.alert("Error", texto);
+                    setLoading(false);
+                    return;
+                }
+
+                const data = JSON.parse(texto);
+                console.log("Datos recibidos:", data);
+
+                setRentas(Array.isArray(data) ? data : []);
+            } catch (error: any) {
+                console.log("Error:", error);
+                Alert.alert("Error", "No se pudieron cargar las rentas");
+            } finally {
+                setLoading(false);
             }
-
-            const videojuegoId = await AsyncStorage.getItem("videojuegoId");
-
-            if (!videojuegoId) {
-                console.log("No hay videojuego logueado");
-                return;
-            }
-
-            const usuario = JSON.parse(usuarioId);
-            const videojuego = JSON.parse(videojuegoId);
-
-
-            const renta = {
-                usuarioId: usuario.id,
-                videojuegoId: videojuego.id,
-                fechaInicio: new Date(),
-                fechaFin: new Date(
-                    Date.now() + 7 * 24 * 60 * 60 * 1000
-                ),
-                estado: "Activa"
-            };
-
-
-            console.log("Renta enviada:", renta);
-
-
-            const response = await fetch(
-                `http://localhost:3000/renta/usuario/${usuarioId}`
-
-            );
-
-            const texto = await response.text();
-
-            console.log("Respuesta:", texto);
-
-            if (!response.ok) {
-                Alert.alert("Error", texto);
-                return;
-            }
-            const data = JSON.parse(texto);
-
-
         };
-        registrarRenta();
+
+        cargarRentas();
     }, []);
 
+    if (loading) {
+        return (
+            <View style={{ padding: 20 }}>
+                <Text>Cargando rentas...</Text>
+            </View>
+        );
+    }
+
     return (
-
-
-        <View>
-            <Text style={{ fontSize: 20, fontWeight: "bold" }}>MIS RENTAS</Text>
+        <View style={{ flex: 1, padding: 20 }}>
+            <Text style={{ fontSize: 22, fontWeight: "bold", marginBottom: 20 }}>
+                MIS RENTAS
+            </Text>
 
             <FlatList
                 data={rentas}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
-                    <View style={{ marginVertical: 10 }}>
-                        <Text style={{ fontSize: 18 }}>{item.titulo}</Text>
-                        <Text style={{ fontSize: 16 }}>
+                    <View
+                        style={{
+                            marginBottom: 15,
+                            padding: 15,
+                            borderWidth: 1,
+                            borderRadius: 10,
+                        }}
+                    >
+                        <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+                            {item.titulo}
+                        </Text>
+
+                        <Text style={{ marginTop: 5 }}>
                             {item.periodoRenta} días restantes
                         </Text>
+
                         <Text>Fecha de renta: {item.fechaRenta}</Text>
                         <Text>Entrega: {item.fechaEntrega}</Text>
                         <Text>Categoría: {item.categoriaId}</Text>
