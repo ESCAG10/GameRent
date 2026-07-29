@@ -14,13 +14,11 @@ export default function GameDetailScreen() {
 
         const cargarVideojuego = async () => {
             try {
-                const response = await fetch(
-                    `http://127.0.0.1:3000/videojuego/${id}`
-                );
-
+                const response = await fetch(`http://127.0.0.1:3000/videojuego/${id}`);
                 const data = await response.json();
 
-                console.log("Videojuego:", data);
+                console.log("VIDEOJUEGO:");
+                console.log(data);
 
                 setVideojuego(data);
 
@@ -41,10 +39,11 @@ export default function GameDetailScreen() {
 
             const usuarioId = await AsyncStorage.getItem("usuarioId");
 
-            if (!usuarioId) {
-                Alert.alert("Error", "No hay un usuario logueado");
-                return;
-            }
+            console.log("========== DATOS ==========");
+            console.log("usuarioId:", usuarioId);
+            console.log("videojuegoId:", videojuego.id);
+            console.log("categoriaId:", videojuego.categoriaId);
+            console.log("===========================");
 
             const hoy = new Date();
             const entrega = new Date();
@@ -61,8 +60,8 @@ export default function GameDetailScreen() {
                 activo: true,
             };
 
-            console.log("Enviando renta:");
-            console.log(renta);
+            console.log("JSON enviado:");
+            console.log(JSON.stringify(renta, null, 2));
 
             const response = await fetch("http://127.0.0.1:3000/renta", {
                 method: "POST",
@@ -74,49 +73,35 @@ export default function GameDetailScreen() {
 
             const data = await response.json();
 
-            console.log("Respuesta del servidor:");
+            console.log("RESPUESTA DEL SERVIDOR:");
             console.log(data);
 
             if (!response.ok) {
-                Alert.alert("Error", data.error || "No se pudo registrar la renta");
+                Alert.alert("Error", data.error);
                 return;
             }
 
-            Alert.alert("Éxito", "Renta registrada correctamente");
+            Alert.alert("Éxito", "Renta registrada");
         } catch (error) {
 
             console.log(error);
-            Alert.alert("Error", "Ocurrió un error");
+
         }
     };
 
     if (!videojuego) {
-        return (
-            <View>
-                <Text>Cargando...</Text>
-            </View>
-        );
+        return <Text>Cargando...</Text>;
     }
 
     return (
-        <View style={{ flex: 1, padding: 20 }}>
-            <Text style={{ fontSize: 22, fontWeight: "bold" }}>
-                {videojuego.titulo}
-            </Text>
-
-
+        <View style={{ padding: 20 }}>
+            <Text style={{ fontSize: 22 }}>{videojuego.titulo}</Text>
             <Text>Plataforma: {videojuego.plataforma}</Text>
             <Text>Descripción: {videojuego.descripcion}</Text>
             <Text>Precio: ${videojuego.precioRenta}</Text>
             <Text>Stock: {videojuego.stock}</Text>
-            <Text>Categoría: {videojuego.categoriaId}</Text>
 
-            <View style={{ marginTop: 20 }}>
-                <Button
-                    title="Rentar videojuego"
-                    onPress={registrarRenta}
-                />
-            </View>
+            <Button title="Rentar" onPress={registrarRenta} />
         </View>
     );
 }
