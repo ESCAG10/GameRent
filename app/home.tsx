@@ -1,6 +1,7 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
-import { Button, FlatList, StyleSheet, Text, TextInput, View } from "react-native";
+import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 export default function HomeScreen() {
 
@@ -22,6 +23,8 @@ export default function HomeScreen() {
 
     const [busqueda, setBusqueda] = useState("");
 
+    const [rol, setRol] = useState("");
+
     const videojuegoFiltrado = videojuego
         .filter((videojuego) => videojuego.titulo
             .toLowerCase().includes(busqueda.toLowerCase()));
@@ -29,114 +32,154 @@ export default function HomeScreen() {
 
     useEffect(() => {
 
+        const cargarRol = async () => {
+
+            const rolGuardado = await AsyncStorage.getItem("rol");
+
+            if (rolGuardado) {
+                setRol(rolGuardado);
+            }
+
+        };
+
         const cargarVideojuego = async () => {
 
             try {
+
                 const response = await fetch("http://127.0.0.1:3000/videojuego");
+
                 const data = await response.json();
+
                 setVideojuego(data ?? []);
 
+            } catch (error) {
+
+                console.error(error);
+
             }
 
+        };
 
-            catch (error) {
-                console.error(error)
-            }
-        }; cargarVideojuego();
+        cargarRol();
+        cargarVideojuego();
 
     }, []);
 
     return (
         <View style={styles.container}>
-
-            {/* Encabezado */}
-
+            {/* Header */}
             <View style={styles.header}>
+                <View>
+                    <Text style={styles.title}>🎮 Catálogo</Text>
+                    <Text style={styles.subtitle}>
+                        Encuentra tu próximo videojuego
+                    </Text>
+                </View>
 
-                <Text style={styles.welcome}>
-                    Bienvenido 👋
-                </Text>
-
-                <Text style={styles.title}>
-                    GameRent
-                </Text>
-
+                <TouchableOpacity
+                    style={styles.profileButton}
+                    onPress={() => router.push("/profile")}
+                >
+                    <Text style={styles.profileText}>👤</Text>
+                </TouchableOpacity>
             </View>
 
-            {/* Banner */}
-
-            <View style={styles.banner}>
-
-                <Text style={styles.bannerEmoji}>
-                    🎮
-                </Text>
-
-                <Text style={styles.bannerTitle}>
-                    Promociones Especiales
-                </Text>
-
-                <Text style={styles.bannerText}>
-                    Renta dos videojuegos y obtén un día extra.
-                </Text>
-
-            </View>
-
-            {/* Barra de búsqueda */}
-
+            {/* Buscador */}
             <TextInput
-                placeholder="🔍 Buscar videojuego..."
+                placeholder="Buscar videojuego..."
+                placeholderTextColor="#999"
+                style={styles.search}
                 value={busqueda}
                 onChangeText={setBusqueda}
-                style={styles.search}
             />
+
+            {/* Botón rentas */}
+            <TouchableOpacity
+                style={styles.rentasButton}
+                onPress={() => router.push("../rentas")}
+            >
+                <Text style={styles.rentasText}>📦 Mis Rentas</Text>
+            </TouchableOpacity>
+
+            {/* Opciones del administrador */}
+            {rol === "administrador" && (
+                <>
+                    <TouchableOpacity
+                        style={styles.rentasButton}
+                        onPress={() => router.push("/videojuego_create")}
+                    >
+                        <Text style={styles.rentasText}>
+                            ➕ Agregar Videojuego
+                        </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={styles.rentasButton}
+                        onPress={() => router.push("/rentals_admin")}
+                    >
+                        <Text style={styles.rentasText}>
+                            📋 Administrar Rentas
+                        </Text>
+                    </TouchableOpacity>
+                </>
+            )}
 
             {/* Lista */}
 
             <FlatList
-
-                data={videojuegoFiltrado}
-
-                keyExtractor={(item) => item.id}
-
-                renderItem={({ item }) => (
-
+                data={videojuego}
+                keyExtractor={(item: any) => item.id}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 20 }}
+                renderItem={({ item }: any) => (
                     <View style={styles.card}>
-
-                        {/* Portada simulada */}
-
-                        <View style={styles.gamePlaceholder}>
-
-                            <Text style={styles.gameEmoji}>
-                                🎮
+                        <View style={styles.topRow}>
+                            <Text style={styles.gameTitle}>
+                                {item.titulo}
                             </Text>
 
+                            <Text style={styles.price}>
+                                ${item.precioRenta}
+                            </Text>
                         </View>
 
-                        <Text style={styles.gameTitle}>
-                            {item.titulo}
+                        <Text style={styles.platform}>
+                            {item.plataforma}
                         </Text>
 
-                        <Text>
-                            Plataforma: {item.plataforma}
-                        </Text>
+                        <TouchableOpacity
+                            style={styles.detailButton}
+                            onPress={() =>
+                                router.push({
+                                    pathname: "/game-detail",
+                                    params: {
+                                        id: item.id,
+                                    },
+                                })
+                            }
+                        >
+                            <Text style={styles.detailText}>
+                                Ver detalles
+                            </Text>
+                        </TouchableOpacity>
 
-                        <Text>
-                            Precio: ${item.precioRenta}
-                        </Text>
-
-                        <Text>
-                            Stock: {item.stock}
-                        </Text>
-
-                        <View style={styles.detailButton}>
-
-                            <Button
-                                title="Ver Detalle"
-                                onPress={() => router.push({ pathname: "/game-detail", params: { id: item.id } })}
-                            />
-
-
-                        </View>
+                        {rol === "administrador" && (
+                            <TouchableOpacity
+                                style={styles.detailButton}
+                                onPress={() =>
+                                    router.push({
+                                        pathname: "/videojuego_edit",
+                                        params: {
+                                            id: item.id,
+                                        },
+                                    })
+                                }
+                            >
+                                <Text style={styles.detailText}>
+                                    ✏️ Editar
+                                </Text>
+                            </TouchableOpacity>
+                        )}
 
                     </View>
 
@@ -148,33 +191,10 @@ export default function HomeScreen() {
                     </Text>
                 }
 
+
             />
-
-            {/* Botones inferiores */}
-
-            <View style={styles.bottomButtons}>
-
-                <View style={styles.buttonContainer}>
-
-                    <Button
-                        title="Mis Rentas"
-                        onPress={() => router.push("/rentals")}
-                    />
-
-                </View>
-
-                <View style={styles.buttonContainer}>
-
-                    <Button
-                        title="Perfil"
-                        onPress={() => router.push("/profile")}
-                    />
-
-                </View>
-
-            </View>
-
         </View>
+
 
     );
 
@@ -264,8 +284,68 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
 
+    subtitle: {
+        fontSize: 14,
+        color: "#666",
+    },
+
+    profileButton: {
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+        backgroundColor: "#E5E7EB",
+        alignItems: "center",
+        justifyContent: "center",
+    },
+
+    profileText: {
+        fontSize: 24,
+    },
+
+    rentasButton: {
+        backgroundColor: "#2563EB",
+        borderRadius: 10,
+        padding: 12,
+        marginBottom: 15,
+        alignItems: "center",
+    },
+
+    rentasText: {
+        color: "#FFFFFF",
+        fontWeight: "bold",
+        fontSize: 16,
+    },
+
+    topRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: 10,
+    },
+
+    price: {
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "#2563EB",
+    },
+
+    platform: {
+        fontSize: 14,
+        color: "#666",
+        marginBottom: 10,
+    },
+
     detailButton: {
         marginTop: 10,
+        backgroundColor: "#F0F0F0",
+        borderRadius: 8,
+        padding: 10,
+        alignItems: "center",
+    },
+
+    detailText: {
+        color: "#333",
+        fontWeight: "600",
     },
 
     empty: {
