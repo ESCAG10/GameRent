@@ -38,7 +38,10 @@ export default function LoginScreen() {
 
             await AsyncStorage.setItem("usuarioId", data.usuario.id);
 
+            await AsyncStorage.setItem("rol", data.usuario.rol);
+
             console.log("usuarioId:", data.usuario.id);
+            console.log("rol:", data.usuario.rol);
 
             router.replace("/home");
         } catch (err) {
