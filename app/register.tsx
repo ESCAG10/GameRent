@@ -11,7 +11,7 @@ export default function LoginScreen() {
 
     useEffect(() => {
         iniciarSesion();
-    }, []);
+    }, [correo, password]);
 
     const iniciarSesion = async () => {
         try {
