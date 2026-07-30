@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Alert, Button, Text, View } from "react-native";
 
@@ -8,9 +8,20 @@ export default function GameDetailScreen() {
     const { id } = useLocalSearchParams();
 
     const [videojuego, setVideojuego] = useState<any>(null);
+    const [rol, setRol] = useState("");
 
 
     useEffect(() => {
+
+        const cargarRol = async () => {
+
+            const r = await AsyncStorage.getItem("rol");
+
+            if (r) {
+                setRol(r);
+            }
+
+        };
 
         const cargarVideojuego = async () => {
             try {
@@ -29,6 +40,8 @@ export default function GameDetailScreen() {
             }
 
         };
+
+        cargarRol();
 
         cargarVideojuego();
 
@@ -89,19 +102,128 @@ export default function GameDetailScreen() {
         }
     };
 
+    const eliminarVideojuego = async () => {
+
+        Alert.alert(
+
+            "Eliminar",
+
+            "¿Desea eliminar este videojuego?",
+
+            [
+
+                {
+                    text: "Cancelar",
+                    style: "cancel",
+                },
+
+                {
+
+                    text: "Eliminar",
+
+                    onPress: async () => {
+
+                        try {
+
+                            const response = await fetch(
+                                `http://127.0.0.1:3000/videojuego/${videojuego.id}`,
+                                {
+                                    method: "DELETE",
+                                }
+                            );
+
+                            if (!response.ok) {
+
+                                Alert.alert("Error", "No se pudo eliminar");
+
+                                return;
+
+                            }
+
+                            Alert.alert(
+                                "Éxito",
+                                "Videojuego eliminado"
+                            );
+
+                            router.back();
+
+                        } catch (error) {
+
+                            Alert.alert(
+                                "Error",
+                                "No se pudo conectar con el servidor"
+                            );
+
+                        }
+
+                    },
+
+                },
+
+            ]
+
+        );
+
+    };
+
     if (!videojuego) {
         return <Text>Cargando...</Text>;
     }
 
     return (
         <View style={{ padding: 20 }}>
-            <Text style={{ fontSize: 22 }}>{videojuego.titulo}</Text>
+
+            <Text style={{ fontSize: 22, fontWeight: "bold" }}>
+                {videojuego.titulo}
+            </Text>
+
             <Text>Plataforma: {videojuego.plataforma}</Text>
+
             <Text>Descripción: {videojuego.descripcion}</Text>
+
             <Text>Precio: ${videojuego.precioRenta}</Text>
+
             <Text>Stock: {videojuego.stock}</Text>
 
-            <Button title="Rentar" onPress={registrarRenta} />
+            <View style={{ marginTop: 20 }}>
+
+                {rol === "cliente" && (
+
+                    <Button
+                        title="Rentar"
+                        onPress={registrarRenta}
+                    />
+
+                )}
+
+                {rol === "administrador" && (
+
+                    <>
+                        <Button
+                            title="Editar Videojuego"
+                            onPress={() =>
+                                router.push({
+                                    pathname: "/videojuego_edit",
+                                    params: {
+                                        id: videojuego.id,
+                                    },
+                                })
+                            }
+                        />
+
+                        <View style={{ height: 10 }} />
+
+                        <Button
+                            color="red"
+                            title="Eliminar Videojuego"
+                            onPress={() => eliminarVideojuego()}
+                        />
+                    </>
+
+                )}
+
+            </View>
+
         </View>
     );
 }
