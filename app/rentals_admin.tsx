@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
 import { Alert, Button, FlatList, StyleSheet, Text, View, } from "react-native";
 
@@ -8,6 +9,9 @@ export default function RentalsAdminScreen() {
     const cargarRentas = async () => {
 
         try {
+
+            const usuarioId = await AsyncStorage.getItem("usuarioId");
+            console.log("Usuario ID:", usuarioId);
 
             const response = await fetch("http://127.0.0.1:3000/renta");
 
@@ -29,37 +33,7 @@ export default function RentalsAdminScreen() {
 
     }, []);
 
-    const devolver = async (id: string) => {
 
-        try {
-
-            const response = await fetch(`http://127.0.0.1:3000/renta/${id}/devolver`, {
-
-                method: "PUT",
-
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-
-                Alert.alert("Error", data.error || "No se pudo devolver");
-
-                return;
-
-            }
-
-            Alert.alert("Éxito", "Renta devuelta");
-
-            cargarRentas();
-
-        } catch (error) {
-
-            Alert.alert("Error", "No se pudo conectar con el servidor");
-
-        }
-
-    };
 
     const eliminar = async (id: string) => {
 
@@ -84,7 +58,7 @@ export default function RentalsAdminScreen() {
 
                         try {
 
-                            const response = await fetch(`http://127.0.0.1:3000/renta/${id}`, {
+                            const response = await fetch(`http://localhost:3000/renta/${id}`, {
 
                                 method: "DELETE",
 
@@ -145,28 +119,18 @@ export default function RentalsAdminScreen() {
                         </Text>
 
                         <Text>
-                            Inicio: {item.fechaInicio}
+                            FechaRenta: {item.fechaInicio}
                         </Text>
 
                         <Text>
-                            Fin: {item.fechaFin}
+                            FechaEntrega: {item.fechaFin}
                         </Text>
 
                         <Text>
                             Estado: {item.estado}
                         </Text>
 
-                        <View style={styles.boton}>
 
-                            <Button
-
-                                title="Devolver"
-
-                                onPress={() => devolver(item.id)}
-
-                            />
-
-                        </View>
 
                         <View style={styles.boton}>
 

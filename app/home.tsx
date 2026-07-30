@@ -96,7 +96,7 @@ export default function HomeScreen() {
             {/* Botón rentas */}
             <TouchableOpacity
                 style={styles.rentasButton}
-                onPress={() => router.push("../rentas")}
+                onPress={() => router.push("/rentals")}
             >
                 <Text style={styles.rentasText}>📦 Mis Rentas</Text>
             </TouchableOpacity>
