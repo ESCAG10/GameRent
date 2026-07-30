@@ -1,7 +1,12 @@
 import { router } from "expo-router";
+import { useState } from "react";
 import { Image, ImageBackground, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 export default function LoginScreen() {
+
+  const [correo, setCorreo] = useState("");
+  const [password, setPassword] = useState("");
+
   return (
 
     <ImageBackground
@@ -65,7 +70,14 @@ export default function LoginScreen() {
 
           <TouchableOpacity
             style={styles.button}
-            onPress={() => router.push("../home")}
+            onPress={() => router.push({
+              pathname: "/register",
+              params: {
+                correo,
+                password,
+              },
+            }
+            )}
           >
 
             <Text style={styles.buttonText}>
@@ -73,10 +85,10 @@ export default function LoginScreen() {
             </Text>
           </TouchableOpacity>
 
-          {/* Botón para ir al registro */}
+          {/* Botón para crear */}
           <TouchableOpacity
             style={[styles.button, { backgroundColor: "#10B981" }]} // verde para diferenciar
-            onPress={() => router.push("../register")}
+            onPress={() => router.push("/RegisterScreen")}
           >
 
             <Text style={styles.buttonText}>

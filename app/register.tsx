@@ -1,10 +1,17 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useState } from "react";
-import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View, } from "react-native";
+import { router, useLocalSearchParams } from "expo-router";
+import { useEffect } from "react";
+import { ActivityIndicator, Alert, StyleSheet, Text, View } from "react-native";
 
 export default function LoginScreen() {
-    const [correo, setCorreo] = useState("");
-    const [password, setPassword] = useState("");
+    const { correo, password } = useLocalSearchParams<{
+        correo: string;
+        password: string;
+    }>();
+
+    useEffect(() => {
+        iniciarSesion();
+    }, []);
 
     const iniciarSesion = async () => {
         try {
@@ -24,71 +31,39 @@ export default function LoginScreen() {
             console.log(data);
 
             if (!response.ok) {
-                Alert.alert("Error", data.error);
+                Alert.alert("Error", data.error || "Credenciales incorrectas");
+                router.back();
                 return;
             }
 
             await AsyncStorage.setItem("usuarioId", data.usuario.id);
 
-            console.log("id", data.usuario?.id);
-            console.log("_id", data.usuario?._id);
+            console.log("usuarioId:", data.usuario.id);
 
-            const guardarUsuarioId = async (id: string) => {
-                await AsyncStorage.setItem("usuarioId", id);
-            };
-
-
-            Alert.alert("Éxito", "Sesión iniciada");
+            router.replace("/home");
         } catch (err) {
             console.log(err);
             Alert.alert("Error", "No se pudo iniciar sesión");
+            router.back();
         }
     };
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Iniciar Sesión</Text>
-
-            <TextInput
-                placeholder="Correo"
-                value={correo}
-                onChangeText={setCorreo}
-                style={styles.input}
-            />
-
-            <TextInput
-                placeholder="Contraseña"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-                style={styles.input}
-            />
-
-            <TouchableOpacity style={styles.button} onPress={iniciarSesion}>
-                <Text style={styles.buttonText}>Entrar</Text>
-            </TouchableOpacity>
+            <ActivityIndicator size="large" color="#2563EB" />
+            <Text style={styles.text}>Iniciando sesión...</Text>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, justifyContent: "center", padding: 20 },
-    title: { fontSize: 24, fontWeight: "bold", marginBottom: 20 },
-    input: {
-        borderWidth: 1,
-        borderColor: "#ccc",
-        padding: 10,
-        marginBottom: 15,
-        borderRadius: 8,
+    container: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
     },
-    button: {
-        backgroundColor: "#2563EB",
-        padding: 15,
-        borderRadius: 8,
-    },
-    buttonText: {
-        color: "#fff",
-        textAlign: "center",
-        fontWeight: "bold",
+    text: {
+        marginTop: 20,
+        fontSize: 18,
     },
 });
