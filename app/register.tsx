@@ -30,6 +30,9 @@ export default function LoginScreen() {
 
             await AsyncStorage.setItem("usuarioId", data.usuario.id);
 
+            console.log("id", data.usuario?.id);
+            console.log("_id", data.usuario?._id);
+
             const guardarUsuarioId = async (id: string) => {
                 await AsyncStorage.setItem("usuarioId", id);
             };
