@@ -21,7 +21,7 @@ export default function ProfileScreen() {
             if (!usuarioId) return;
 
             const response = await fetch(
-                `http://127.0.0.1:3000/usuario/${usuarioId}`
+                `http://localhost:3000/usuario/${usuarioId}`
             );
 
             const data = await response.json();

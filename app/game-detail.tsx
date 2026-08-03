@@ -25,7 +25,7 @@ export default function GameDetailScreen() {
 
         const cargarVideojuego = async () => {
             try {
-                const response = await fetch(`http://127.0.0.1:3000/videojuego/${id}`);
+                const response = await fetch(`http://localhost:3000/videojuego/${id}`);
                 const data = await response.json();
 
                 console.log("VIDEOJUEGO:");
@@ -76,7 +76,7 @@ export default function GameDetailScreen() {
             console.log("JSON enviado:");
             console.log(JSON.stringify(renta, null, 2));
 
-            const response = await fetch("http://127.0.0.1:3000/renta", {
+            const response = await fetch("http://localhost:3000/renta", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -126,7 +126,7 @@ export default function GameDetailScreen() {
                         try {
 
                             const response = await fetch(
-                                `http://127.0.0.1:3000/videojuego/${videojuego.id}`,
+                                `http://localhost:3000/videojuego/${videojuego.id}`,
                                 {
                                     method: "DELETE",
                                 }
@@ -142,7 +142,13 @@ export default function GameDetailScreen() {
 
                             Alert.alert(
                                 "Éxito",
-                                "Videojuego eliminado"
+                                "Videojuego eliminado",
+                                [
+                                    {
+                                        text: "OK",
+                                        onPress: () => router.replace("/home"),
+                                    },
+                                ]
                             );
 
                             router.back();

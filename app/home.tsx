@@ -46,7 +46,7 @@ export default function HomeScreen() {
 
             try {
 
-                const response = await fetch("http://127.0.0.1:3000/videojuego");
+                const response = await fetch("http://localhost:3000/videojuego");
 
                 const data = await response.json();
 

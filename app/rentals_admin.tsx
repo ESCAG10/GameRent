@@ -4,20 +4,20 @@ import { Alert, Button, FlatList, StyleSheet, Text, View, } from "react-native";
 
 export default function RentalsAdminScreen() {
 
-    const [rentas, setRentas] = useState<any[]>([]);
+    const [renta, setRenta] = useState<any[]>([]);
 
-    const cargarRentas = async () => {
+    const cargarRenta = async () => {
 
         try {
 
             const usuarioId = await AsyncStorage.getItem("usuarioId");
             console.log("Usuario ID:", usuarioId);
 
-            const response = await fetch("http://127.0.0.1:3000/renta");
+            const response = await fetch("http://localhost:3000/renta");
 
             const data = await response.json();
 
-            setRentas(data ?? []);
+            setRenta(data ?? []);
 
         } catch (error) {
 
@@ -29,13 +29,13 @@ export default function RentalsAdminScreen() {
 
     useEffect(() => {
 
-        cargarRentas();
+        cargarRenta();
 
     }, []);
 
 
 
-    const eliminar = async (id: string) => {
+    const eliminar = async (rentaId: string) => {
 
         Alert.alert(
 
@@ -44,12 +44,7 @@ export default function RentalsAdminScreen() {
             "¿Desea eliminar esta renta?",
 
             [
-
-                {
-                    text: "Cancelar",
-                    style: "cancel",
-                },
-
+                { text: "Cancelar", style: "cancel" },
                 {
 
                     text: "Eliminar",
@@ -57,12 +52,12 @@ export default function RentalsAdminScreen() {
                     onPress: async () => {
 
                         try {
-
-                            const response = await fetch(`http://localhost:3000/renta/${id}`, {
-
-                                method: "DELETE",
-
-                            });
+                            const response = await fetch(
+                                `http://localhost:3000/renta/${rentaId}`,
+                                {
+                                    method: "DELETE",
+                                }
+                            );
 
                             if (!response.ok) {
 
@@ -73,9 +68,7 @@ export default function RentalsAdminScreen() {
                             }
 
                             Alert.alert("Éxito", "Renta eliminada");
-
-                            cargarRentas();
-
+                            cargarRenta();
                         } catch (error) {
 
                             Alert.alert("Error", "No se pudo conectar");
@@ -102,7 +95,7 @@ export default function RentalsAdminScreen() {
 
             <FlatList
 
-                data={rentas}
+                data={renta}
 
                 keyExtractor={(item) => item.id}
 
@@ -119,11 +112,11 @@ export default function RentalsAdminScreen() {
                         </Text>
 
                         <Text>
-                            FechaRenta: {item.fechaInicio}
+                            FechaRenta: {item.fechaRenta}
                         </Text>
 
                         <Text>
-                            FechaEntrega: {item.fechaFin}
+                            FechaEntrega: {item.fechaEntrega}
                         </Text>
 
                         <Text>

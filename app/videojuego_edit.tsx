@@ -21,7 +21,7 @@ export default function VideojuegoEditScreen() {
 
         try {
 
-            const response = await fetch(`http://127.0.0.1:3000/videojuego/${id}`);
+            const response = await fetch(`http://localhost:3000/videojuego/${id}`);
 
             const data = await response.json();
 
@@ -44,7 +44,7 @@ export default function VideojuegoEditScreen() {
 
         try {
 
-            const response = await fetch(`http://127.0.0.1:3000/videojuego/${id}`, {
+            const response = await fetch(`http://localhost:3000/videojuego/${id}`, {
 
                 method: "PUT",
 
