@@ -5,30 +5,17 @@ import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from "r
 
 export default function HomeScreen() {
 
-    const videojuegoDemo = [
-
-        {
-            id: "5",
-            titulo: "Forza Horizon 5",
-            plataforma: "Xbox Series X",
-            descripcion: "Juego de carreras...",
-            precioRenta: 60,
-            stock: 7,
-            activo: true,
-            categoriaId: "Carreras",
-        },
-    ];
-
     const [videojuego, setVideojuego] = useState<any[]>([]);
-
     const [busqueda, setBusqueda] = useState("");
-
     const [rol, setRol] = useState("");
 
-    const videojuegoFiltrado = videojuego
-        .filter((videojuego) => videojuego.titulo
-            .toLowerCase().includes(busqueda.toLowerCase()));
-
+    const videojuegoFiltrado = Array.isArray(videojuego)
+        ? videojuego.filter((item: any) =>
+            (item.titulo ?? "")
+                .toLowerCase()
+                .includes(busqueda.toLowerCase())
+        )
+        : [];
 
     useEffect(() => {
 
@@ -50,11 +37,12 @@ export default function HomeScreen() {
 
                 const data = await response.json();
 
-                setVideojuego(data ?? []);
+                setVideojuego(Array.isArray(data) ? data : []);
 
             } catch (error) {
 
                 console.error(error);
+                setVideojuego([]);
 
             }
 
@@ -66,25 +54,36 @@ export default function HomeScreen() {
     }, []);
 
     return (
+
         <View style={styles.container}>
-            {/* Header */}
+
             <View style={styles.header}>
+
                 <View>
-                    <Text style={styles.title}>🎮 Catálogo</Text>
+
+                    <Text style={styles.title}>
+                        🎮 Catálogo
+                    </Text>
+
                     <Text style={styles.subtitle}>
                         Encuentra tu próximo videojuego
                     </Text>
+
                 </View>
 
                 <TouchableOpacity
                     style={styles.profileButton}
                     onPress={() => router.push("/profile")}
                 >
-                    <Text style={styles.profileText}>👤</Text>
+
+                    <Text style={styles.profileText}>
+                        👤
+                    </Text>
+
                 </TouchableOpacity>
+
             </View>
 
-            {/* Buscador */}
             <TextInput
                 placeholder="Buscar videojuego..."
                 placeholderTextColor="#999"
@@ -93,47 +92,60 @@ export default function HomeScreen() {
                 onChangeText={setBusqueda}
             />
 
-            {/* Botón rentas */}
             <TouchableOpacity
                 style={styles.rentasButton}
                 onPress={() => router.push("/rentals")}
             >
-                <Text style={styles.rentasText}>📦 Mis Rentas</Text>
+
+                <Text style={styles.rentasText}>
+                    📦 Mis Rentas
+                </Text>
+
             </TouchableOpacity>
 
-            {/* Opciones del administrador */}
             {rol === "administrador" && (
+
                 <>
+
                     <TouchableOpacity
                         style={styles.rentasButton}
                         onPress={() => router.push("/videojuego_create")}
                     >
+
                         <Text style={styles.rentasText}>
                             ➕ Agregar Videojuego
                         </Text>
+
                     </TouchableOpacity>
 
                     <TouchableOpacity
                         style={styles.rentasButton}
                         onPress={() => router.push("/rentals_admin")}
                     >
+
                         <Text style={styles.rentasText}>
                             📋 Administrar Rentas
                         </Text>
+
                     </TouchableOpacity>
+
                 </>
+
             )}
 
-            {/* Lista */}
-
             <FlatList
-                data={videojuego}
-                keyExtractor={(item: any) => item.id}
+                data={videojuegoFiltrado}
+                keyExtractor={(item: any, index) =>
+                    item.id ? item.id.toString() : index.toString()
+                }
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingBottom: 20 }}
                 renderItem={({ item }: any) => (
+
                     <View style={styles.card}>
+
                         <View style={styles.topRow}>
+
                             <Text style={styles.gameTitle}>
                                 {item.titulo}
                             </Text>
@@ -141,6 +153,7 @@ export default function HomeScreen() {
                             <Text style={styles.price}>
                                 ${item.precioRenta}
                             </Text>
+
                         </View>
 
                         <Text style={styles.platform}>
@@ -158,12 +171,15 @@ export default function HomeScreen() {
                                 })
                             }
                         >
+
                             <Text style={styles.detailText}>
                                 Ver detalles
                             </Text>
+
                         </TouchableOpacity>
 
                         {rol === "administrador" && (
+
                             <TouchableOpacity
                                 style={styles.detailButton}
                                 onPress={() =>
@@ -175,26 +191,26 @@ export default function HomeScreen() {
                                     })
                                 }
                             >
+
                                 <Text style={styles.detailText}>
                                     ✏️ Editar
                                 </Text>
+
                             </TouchableOpacity>
+
                         )}
 
                     </View>
 
                 )}
-
                 ListEmptyComponent={
                     <Text style={styles.empty}>
                         No hay videojuegos registrados.
                     </Text>
                 }
-
-
             />
-        </View>
 
+        </View>
 
     );
 
@@ -210,78 +226,15 @@ const styles = StyleSheet.create({
 
     header: {
         marginBottom: 20,
-    },
-
-    welcome: {
-        fontSize: 18,
-        color: "#666",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
     },
 
     title: {
         fontSize: 30,
         fontWeight: "bold",
         color: "#1F2937",
-    },
-
-    banner: {
-        backgroundColor: "#2563EB",
-        borderRadius: 15,
-        padding: 20,
-        alignItems: "center",
-        marginBottom: 20,
-    },
-
-    bannerEmoji: {
-        fontSize: 50,
-    },
-
-    bannerTitle: {
-        color: "#FFFFFF",
-        fontSize: 22,
-        fontWeight: "bold",
-        marginTop: 10,
-    },
-
-    bannerText: {
-        color: "#FFFFFF",
-        textAlign: "center",
-        marginTop: 10,
-    },
-
-    search: {
-        backgroundColor: "#FFFFFF",
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: "#DDD",
-        padding: 12,
-        marginBottom: 20,
-    },
-
-    card: {
-        backgroundColor: "#FFFFFF",
-        borderRadius: 15,
-        padding: 15,
-        marginBottom: 15,
-        elevation: 5,
-    },
-
-    gamePlaceholder: {
-        height: 150,
-        backgroundColor: "#D6E4FF",
-        justifyContent: "center",
-        alignItems: "center",
-        borderRadius: 12,
-        marginBottom: 15,
-    },
-
-    gameEmoji: {
-        fontSize: 60,
-    },
-
-    gameTitle: {
-        fontSize: 22,
-        fontWeight: "bold",
-        marginBottom: 8,
     },
 
     subtitle: {
@@ -302,6 +255,15 @@ const styles = StyleSheet.create({
         fontSize: 24,
     },
 
+    search: {
+        backgroundColor: "#FFFFFF",
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: "#DDD",
+        padding: 12,
+        marginBottom: 20,
+    },
+
     rentasButton: {
         backgroundColor: "#2563EB",
         borderRadius: 10,
@@ -316,11 +278,24 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
 
+    card: {
+        backgroundColor: "#FFFFFF",
+        borderRadius: 15,
+        padding: 15,
+        marginBottom: 15,
+        elevation: 5,
+    },
+
     topRow: {
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
         marginBottom: 10,
+    },
+
+    gameTitle: {
+        fontSize: 22,
+        fontWeight: "bold",
     },
 
     price: {
@@ -352,16 +327,6 @@ const styles = StyleSheet.create({
         textAlign: "center",
         marginVertical: 20,
         color: "#666",
-    },
-
-    bottomButtons: {
-        marginTop: 10,
-        alignItems: "center",
-    },
-
-    buttonContainer: {
-        width: 220,
-        marginVertical: 8,
     },
 
 });

@@ -5,6 +5,7 @@ import { Alert, FlatList, Text, View } from "react-native";
 interface RentalItem {
     id: string;
     titulo: string;
+    videojuegoId: string;
     periodoRenta: number;
     fechaRenta: string;
     fechaEntrega: string;
@@ -13,14 +14,17 @@ interface RentalItem {
 }
 
 export default function RentalsScreen() {
-    const [rentas, setRentas] = useState<any[]>([]);
+
+    const [rentas, setRentas] = useState<RentalItem[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+
         const cargarRentas = async () => {
+
             try {
+
                 const usuarioId = await AsyncStorage.getItem("usuarioId");
-                console.log("Usuario ID:", usuarioId);
 
                 if (!usuarioId) {
                     Alert.alert("Error", "No hay un usuario logueado");
@@ -33,7 +37,6 @@ export default function RentalsScreen() {
                 );
 
                 const texto = await response.text();
-                console.log("Respuesta:", texto);
 
                 if (!response.ok) {
                     Alert.alert("Error", texto);
@@ -42,18 +45,53 @@ export default function RentalsScreen() {
                 }
 
                 const data = JSON.parse(texto);
-                console.log("Datos recibidos:", data);
 
-                setRentas(Array.isArray(data) ? data : []);
-            } catch (error: any) {
-                console.log("Error:", error);
+                const rentasConTitulo = await Promise.all(
+
+                    data.map(async (renta: any) => {
+
+                        try {
+
+                            const responseJuego = await fetch(
+                                `http://localhost:3000/videojuego/${renta.videojuegoId}`
+                            );
+
+                            const juego = await responseJuego.json();
+
+                            return {
+                                ...renta,
+                                titulo: juego.titulo,
+                            };
+
+                        } catch {
+
+                            return {
+                                ...renta,
+                                titulo: "Videojuego",
+                            };
+
+                        }
+
+                    })
+
+                );
+
+                setRentas(rentasConTitulo);
+
+            } catch (error) {
+
                 Alert.alert("Error", "No se pudieron cargar las rentas");
+
             } finally {
+
                 setLoading(false);
+
             }
+
         };
 
         cargarRentas();
+
     }, []);
 
     if (loading) {
@@ -66,6 +104,7 @@ export default function RentalsScreen() {
 
     return (
         <View style={{ flex: 1, padding: 20 }}>
+
             <Text style={{ fontSize: 22, fontWeight: "bold", marginBottom: 20 }}>
                 MIS RENTAS
             </Text>
@@ -74,6 +113,7 @@ export default function RentalsScreen() {
                 data={rentas}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
+
                     <View
                         style={{
                             marginBottom: 15,
@@ -82,7 +122,13 @@ export default function RentalsScreen() {
                             borderRadius: 10,
                         }}
                     >
-                        <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+
+                        <Text
+                            style={{
+                                fontSize: 18,
+                                fontWeight: "bold",
+                            }}
+                        >
                             {item.titulo}
                         </Text>
 
@@ -90,18 +136,37 @@ export default function RentalsScreen() {
                             {item.periodoRenta} días restantes
                         </Text>
 
-                        <Text>Fecha de renta: {item.fechaRenta}</Text>
-                        <Text>Entrega: {item.fechaEntrega}</Text>
-                        <Text>Categoría: {item.categoriaId}</Text>
-                        <Text>Estado: {item.activo ? "Activo" : "Finalizado"}</Text>
+                        <Text>
+                            Fecha de renta: {item.fechaRenta}
+                        </Text>
+
+                        <Text>
+                            Entrega: {item.fechaEntrega}
+                        </Text>
+
+                        <Text>
+                            Categoría: {item.categoriaId}
+                        </Text>
+
+                        <Text>
+                            Estado: {item.activo ? "Activo" : "Finalizado"}
+                        </Text>
+
                     </View>
+
                 )}
                 ListEmptyComponent={
-                    <Text style={{ textAlign: "center", marginTop: 20 }}>
+                    <Text
+                        style={{
+                            textAlign: "center",
+                            marginTop: 20,
+                        }}
+                    >
                         No tienes rentas registradas.
                     </Text>
                 }
             />
+
         </View>
     );
 }

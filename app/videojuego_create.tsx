@@ -1,6 +1,13 @@
 import { router } from "expo-router";
 import { useState } from "react";
-import { Alert, Button, ScrollView, StyleSheet, Text, TextInput } from "react-native";
+import {
+    Alert,
+    Button,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+} from "react-native";
 
 export default function VideojuegoCreateScreen() {
 
@@ -10,6 +17,9 @@ export default function VideojuegoCreateScreen() {
     const [precioRenta, setPrecioRenta] = useState("");
     const [stock, setStock] = useState("");
     const [categoriaId, setCategoriaId] = useState("");
+    const [imagenPortada, setImagenPortada] = useState("");
+    const [desarrollador, setDesarrollador] = useState("");
+    const [editor, setEditor] = useState("");
 
     const guardar = async () => {
 
@@ -31,6 +41,9 @@ export default function VideojuegoCreateScreen() {
                     precioRenta: Number(precioRenta),
                     stock: Number(stock),
                     categoriaId,
+                    imagenPortada,
+                    desarrollador,
+                    editor,
                     activo: true,
 
                 }),
@@ -51,9 +64,7 @@ export default function VideojuegoCreateScreen() {
 
             router.back();
 
-        }
-
-        catch (error) {
+        } catch (error) {
 
             Alert.alert("Error", "No se pudo conectar con el servidor");
 
@@ -63,9 +74,7 @@ export default function VideojuegoCreateScreen() {
 
     return (
 
-        <ScrollView
-            contentContainerStyle={styles.container}
-        >
+        <ScrollView contentContainerStyle={styles.container}>
 
             <Text style={styles.title}>
                 Nuevo Videojuego
@@ -113,6 +122,27 @@ export default function VideojuegoCreateScreen() {
                 placeholder="Categoría"
                 value={categoriaId}
                 onChangeText={setCategoriaId}
+                style={styles.input}
+            />
+
+            <TextInput
+                placeholder="URL Imagen"
+                value={imagenPortada}
+                onChangeText={setImagenPortada}
+                style={styles.input}
+            />
+
+            <TextInput
+                placeholder="Desarrollador"
+                value={desarrollador}
+                onChangeText={setDesarrollador}
+                style={styles.input}
+            />
+
+            <TextInput
+                placeholder="Editor"
+                value={editor}
+                onChangeText={setEditor}
                 style={styles.input}
             />
 
