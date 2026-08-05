@@ -35,55 +35,35 @@ export default function RentalsAdminScreen() {
 
 
 
-    const eliminar = async (rentaId: string) => {
+    const eliminar = async (rentaId: any) => {
 
-        Alert.alert(
+        try {
 
-            "Eliminar",
-
-            "¿Desea eliminar esta renta?",
-
-            [
-                { text: "Cancelar", style: "cancel" },
+            const response = await fetch(
+                `http://localhost:3000/renta/${String(rentaId)}`,
                 {
+                    method: "DELETE",
+                }
+            );
 
-                    text: "Eliminar",
+            const data = await response.json();
 
-                    onPress: async () => {
+            if (!response.ok) {
+                Alert.alert("Error", data.error || "No se pudo eliminar");
+                return;
+            }
 
-                        try {
-                            const response = await fetch(
-                                `http://localhost:3000/renta/${rentaId}`,
-                                {
-                                    method: "DELETE",
-                                }
-                            );
+            Alert.alert("Éxito", data.message);
 
-                            if (!response.ok) {
+            setRenta((prev) => prev.filter((r) => r.id !== rentaId));
 
-                                Alert.alert("Error", "No se pudo eliminar");
+        } catch {
 
-                                return;
+            Alert.alert("Error", "No se pudo conectar");
 
-                            }
-
-                            Alert.alert("Éxito", "Renta eliminada");
-                            cargarRenta();
-                        } catch (error) {
-
-                            Alert.alert("Error", "No se pudo conectar");
-
-                        }
-
-                    },
-
-                },
-
-            ]
-
-        );
-
+        }
     };
+
 
     return (
 
